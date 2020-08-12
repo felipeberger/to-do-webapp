@@ -1,0 +1,42 @@
+body {
+  background-color: #343a40;
+  margin: 25px;
+}
+
+.container-fluid {
+  max-width: 1000px;
+  background-color: #202124;
+}
+
+hr {
+  border: 1px solid gray;
+}
+
+i {
+  font-size: 1.25rem;
+}
+
+input {
+  background-color: #202124;
+  font-weight: 400;
+  width: 80%;
+  color: white;
+}
+
+input:focus {
+  outline: none;
+  caret-color: white;
+  color: white;
+}
+
+::placeholder {
+  color: #80868b;
+  opacity: 1;
+}
+
+@media (max-width: 960px) {
+  body {
+    background-color: #202124;
+    margin-top: 0;
+  }
+}
