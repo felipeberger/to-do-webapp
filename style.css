@@ -1,3 +1,4 @@
+/* general styling */
 body {
   background-color: #343a40;
   margin: 25px;
@@ -8,12 +9,18 @@ body {
   background-color: #202124;
 }
 
-hr {
+i {
+  font-size: 1.25rem;
+}
+
+/* task list styles */
+.task-list hr {
   border: 1px solid gray;
 }
 
-i {
-  font-size: 1.25rem;
+/* input styles */
+.task-entry hr {
+  border: 1px solid gray;
 }
 
 input {
@@ -34,6 +41,21 @@ input:focus {
   opacity: 1;
 }
 
+/* inactive section styles */
+.divider {
+  border: 0.5px dotted #949494;
+}
+
+.inactive,
+h5 {
+  color: #80868b;
+}
+
+.inactive hr {
+  border: 0;
+}
+
+/* media-specific styles */
 @media (max-width: 960px) {
   body {
     background-color: #202124;

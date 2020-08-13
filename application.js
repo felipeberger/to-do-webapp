@@ -2,7 +2,6 @@
 
 // populates the list with all tasks in the server
 var populateAll = function() {
-  var getAllData = function() {
     $.ajax({
       type: 'GET',
       url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks?api_key=177',
@@ -16,11 +15,13 @@ var populateAll = function() {
         console.log(errorMessage);
       }
     });
-  };
 
   var populateAllHelper = function(elem) {
     elem.tasks.forEach(function (item) {
-      $('.task-list').append(
+      var completed = item['completed'];
+      var targetDom = completed ? '.inactive' : '.task-list';
+
+      $(targetDom).append(
         '<div class="task ' + item['completed'] + '" id="' + item['id'] + '">' +
           '<hr>' +
           '<i class="far fa-square pr-3"></i>' +
@@ -29,7 +30,37 @@ var populateAll = function() {
       )
     })
   };
-  getAllData();
+};
+
+/*
+Gets the biggest ID in the database and
+returns that number + 1 so it can be added to new tasks
+
+empty --> int
+*/
+var getLastID = function() {
+  $.ajax({
+    type: 'GET',
+    url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks?api_key=177',
+    dataType: 'json',
+    success: function (response) {
+      console.log(response);
+      getLastIdHelper(response);
+    },
+
+    error: function(request, errorMessage) {
+      console.log(errorMessage);
+    }
+  });
+
+  var getLastIdHelper = function (elem) {
+    var largestId = 0;
+    elem.tasks.forEach(function (item) {
+      largestId = item['id'] > largestId ? item['id'] : largestId;
+    })
+
+    return(largestId + 1);
+  }
 };
 
 // saves new entry to server
@@ -75,11 +106,7 @@ var toggleCompleted = function (entry, completed) {
     url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks/' + entry + '/' + newStatus + '?api_key=177',
     contentType: 'application/json',
     dataType: 'json',
-    data: JSON.stringify({
-      // task: {
-      //   completed: newStatus
-      // }
-    }),
+    data: JSON.stringify({    }),
     success: function (response, textStatus) {
       console.log('Completed updated to ' + newStatus);
       console.log(response);
@@ -97,7 +124,7 @@ $(document).on('keypress', 'input', function() {
   if (event.which === 13) {
     var temp = $('input').val();
     $('.task-list').append(
-      '<div class="task">' +
+      '<div class="task false">' +
         '<hr>' +
         '<i class="far fa-square pr-3"></i>' +
         '<p class="d-inline">' + temp + '</p>' +
@@ -105,18 +132,32 @@ $(document).on('keypress', 'input', function() {
     )
     $('input').val('');
     uploadSingleEntry(temp);
+    getLastID();
   }
 });
 
-// mark task completed and move to completed
+// mark task completed and move to completed or viceversa
 $(document).on('click', '.fa-square', function() {
   var divId = $(this).closest('.task').attr('id');
-  var status = $(this).closest('.task').attr('class').includes('true');
-  var detachedElem = $(this).closest('.task').detach();
-  console.log(detachedElem);
-  toggleCompleted(divId, status);
-  $('.inactive').append(detachedElem);
-})
+  var completed = $(this).closest('.task').attr('class').includes('true');
+  var detachedElem = null;
+
+  if (completed) {
+    $(this).closest('.task').attr('class', 'task false');
+  } else {
+    $(this).closest('.task').attr('class', 'task true');
+  }
+
+  detachedElem = $(this).closest('.task').detach();
+
+  if (completed) {
+    $('.task-list').append(detachedElem);
+  } else {
+    $('.inactive').prepend(detachedElem);
+  }
+
+  toggleCompleted(divId, completed);
+});
 
 // delete task from list
 // $(document).on('click', '.fa-square', function() {
@@ -124,7 +165,6 @@ $(document).on('click', '.fa-square', function() {
 //   deleteSingleEntry(divId);
 //   $(this).closest('.task').remove();
 // })
-
 
 // ---------------- fire upon DOM load ----------------
 $(document).ready(function() {
