@@ -32,33 +32,6 @@ var populateAll = function() {
   };
 };
 
-// null --> int
-var getLastId = function() {
-  $.ajax({
-    type: 'GET',
-    url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks?api_key=177',
-    dataType: 'json',
-    success: function (response) {
-      console.log(response);
-      getLastIdHelper(response);
-    },
-
-    error: function(request, errorMessage) {
-      console.log(errorMessage);
-    }
-  });
-
-  var getLastIdHelper = function (elem) {
-    var largestId = 0;
-    elem.tasks.forEach(function (item) {
-      largestId = item['id'] > largestId ? item['id'] : largestId;
-    })
-
-    console.log(largestId);
-    return(largestId);
-  }
-};
-
 // saves new entry to server
 var uploadSingleEntry = function(entry) {
   $.ajax({
@@ -135,23 +108,48 @@ var getAll = function () {
 // add new task to list
 $(document).on('keypress', 'input', function() {
   if (event.which === 13) {
-    var temp = $('input').val();
-    var newId = null;
-    uploadSingleEntry(temp);
-    newId = getLastId();
+    $.ajax({
+      type: 'GET',
+      url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks?api_key=177',
+      dataType: 'json',
+      success: function (response) {
+        console.log(response);
+        getLastIdHelper(response);
+      },
 
-    console.log(getLastID);
-    console.log(newId);
-    getAll();
+      error: function(request, errorMessage) {
+        console.log(errorMessage);
+      }
+    });
 
-    $('.task-list').append(
-      '<div class="task false" id="' + newId + '">' +
-        '<hr>' +
-        '<i class="far fa-square pr-3"></i>' +
-        '<p class="d-inline">' + temp + '</p>' +
-      '</div>'
-    )
-    $('input').val('');
+    var getLastIdHelper = function (elem) {
+      var largestId = 0;
+      elem.tasks.forEach(function (item) {
+        largestId = item['id'] > largestId ? item['id'] : largestId;
+      })
+
+      console.log(largestId);
+      getAll();
+      addNewEntry(largestId + 1);
+    }
+
+    var addNewEntry = function(newId) {
+      var temp = $('input').val();
+      // var newId = null;
+      uploadSingleEntry(temp);
+      // newId = getLastId();
+
+      console.log(newId);
+
+      $('.task-list').append(
+        '<div class="task false" id="' + newId + '">' +
+          '<hr>' +
+          '<i class="far fa-square pr-3"></i>' +
+          '<p class="d-inline">' + temp + '</p>' +
+        '</div>'
+      )
+      $('input').val('');
+    }
   }
 });
 
@@ -176,6 +174,12 @@ $(document).on('click', '.fa-square', function() {
   }
 
   toggleCompleted(divId, completed);
+
+  if ($('.inactive').children().length === 1) {
+    $('.inactive-holder').attr('class', 'pb-3 inactive-holder');
+  } else if ($('.inactive').children().length === 0)
+    $('.inactive-holder').attr('class', 'pb-3 inactive-holder d-none');
+
 });
 
 // delete task from list
