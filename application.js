@@ -1,4 +1,6 @@
-// ------------------ task populating methods -----------------
+// ------------------ ajax methods -----------------
+
+// populates the list with all tasks in the server
 var populateAll = function() {
   var getAllData = function() {
     $.ajax({
@@ -6,6 +8,7 @@ var populateAll = function() {
       url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks?api_key=177',
       dataType: 'json',
       success: function (response) {
+        console.log(response);
         populateAllHelper(response);
       },
 
@@ -18,7 +21,7 @@ var populateAll = function() {
   var populateAllHelper = function(elem) {
     elem.tasks.forEach(function (item) {
       $('.task-list').append(
-        '<div class="task" id=' + item['id'] + '>' +
+        '<div class="task ' + item['completed'] + '" id="' + item['id'] + '">' +
           '<hr>' +
           '<i class="far fa-square pr-3"></i>' +
           '<p class="d-inline">' + item['content'] + '</p>' +
@@ -29,6 +32,7 @@ var populateAll = function() {
   getAllData();
 };
 
+// saves new entry to server
 var uploadSingleEntry = function(entry) {
   $.ajax({
     type: 'POST',
@@ -49,6 +53,7 @@ var uploadSingleEntry = function(entry) {
   });
 }
 
+// deletes entry from server
 var deleteSingleEntry = function(entry) {
   $.ajax({
     type: 'DELETE',
@@ -60,6 +65,29 @@ var deleteSingleEntry = function(entry) {
       console.log(errorMessage);
     }
   })
+}
+
+var toggleCompleted = function (entry, completed) {
+  var newStatus = completed === true ? 'mark_active' : 'mark_complete';
+
+  $.ajax({
+    type: 'PUT',
+    url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks/' + entry + '/' + newStatus + '?api_key=177',
+    contentType: 'application/json',
+    dataType: 'json',
+    data: JSON.stringify({
+      // task: {
+      //   completed: newStatus
+      // }
+    }),
+    success: function (response, textStatus) {
+      console.log('Completed updated to ' + newStatus);
+      console.log(response);
+    },
+    error: function (request, textStatus, errorMessage) {
+      console.log(errorMessage);
+    }
+  });
 }
 
 // ------------------  event handlers ---------------------
@@ -80,13 +108,22 @@ $(document).on('keypress', 'input', function() {
   }
 });
 
-// delete task from list
-$(document).on('click', '.fa-square', function(elem) {
+// mark task completed and move to completed
+$(document).on('click', '.fa-square', function() {
   var divId = $(this).closest('.task').attr('id');
-  deleteSingleEntry(divId);
-  $(this).closest('.task').remove();
+  var status = $(this).closest('.task').attr('class').includes('true');
+  var detachedElem = $(this).closest('.task').detach();
+  console.log(detachedElem);
+  toggleCompleted(divId, status);
+  $('.inactive').append(detachedElem);
 })
 
+// delete task from list
+// $(document).on('click', '.fa-square', function() {
+//   var divId = $(this).closest('.task').attr('id');
+//   deleteSingleEntry(divId);
+//   $(this).closest('.task').remove();
+// })
 
 
 // ---------------- fire upon DOM load ----------------
