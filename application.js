@@ -32,13 +32,8 @@ var populateAll = function() {
   };
 };
 
-/*
-Gets the biggest ID in the database and
-returns that number + 1 so it can be added to new tasks
-
-empty --> int
-*/
-var getLastID = function() {
+// null --> int
+var getLastId = function() {
   $.ajax({
     type: 'GET',
     url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks?api_key=177',
@@ -59,7 +54,8 @@ var getLastID = function() {
       largestId = item['id'] > largestId ? item['id'] : largestId;
     })
 
-    return(largestId + 1);
+    console.log(largestId);
+    return(largestId);
   }
 };
 
@@ -85,10 +81,10 @@ var uploadSingleEntry = function(entry) {
 }
 
 // deletes entry from server
-var deleteSingleEntry = function(entry) {
+var deleteSingleEntry = function(id) {
   $.ajax({
     type: 'DELETE',
-    url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks/' + entry + '?api_key=177',
+    url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks/' + id + '?api_key=177',
     success: function (response, textStatus) {
       console.log('Deleted: ' + response);
     },
@@ -98,12 +94,13 @@ var deleteSingleEntry = function(entry) {
   })
 }
 
-var toggleCompleted = function (entry, completed) {
+// changes complete status on server
+var toggleCompleted = function (id, completed) {
   var newStatus = completed === true ? 'mark_active' : 'mark_complete';
 
   $.ajax({
     type: 'PUT',
-    url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks/' + entry + '/' + newStatus + '?api_key=177',
+    url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks/' + id + '/' + newStatus + '?api_key=177',
     contentType: 'application/json',
     dataType: 'json',
     data: JSON.stringify({    }),
@@ -117,22 +114,44 @@ var toggleCompleted = function (entry, completed) {
   });
 }
 
+// remove before final version
+var getAll = function () {
+  $.ajax({
+    type: 'GET',
+    url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks?api_key=177',
+    dataType: 'json',
+    success: function (response) {
+      console.log(response);
+    },
+
+    error: function(request, errorMessage) {
+      console.log(errorMessage);
+    }
+  });
+}
+
 // ------------------  event handlers ---------------------
 
 // add new task to list
 $(document).on('keypress', 'input', function() {
   if (event.which === 13) {
     var temp = $('input').val();
+    var newId = null;
+    uploadSingleEntry(temp);
+    newId = getLastId();
+
+    console.log(getLastID);
+    console.log(newId);
+    getAll();
+
     $('.task-list').append(
-      '<div class="task false">' +
+      '<div class="task false" id="' + newId + '">' +
         '<hr>' +
         '<i class="far fa-square pr-3"></i>' +
         '<p class="d-inline">' + temp + '</p>' +
       '</div>'
     )
     $('input').val('');
-    uploadSingleEntry(temp);
-    getLastID();
   }
 });
 
