@@ -1,4 +1,4 @@
-// task populating methods
+// ------------------ task populating methods -----------------
 var populateAll = function() {
   var getAllData = function() {
     $.ajax({
@@ -17,7 +17,7 @@ var populateAll = function() {
 
   var populateAllHelper = function(elem) {
     elem.tasks.forEach(function (item) {
-      $('.task-list').prepend(
+      $('.task-list').append(
         '<div class="task" id=' + item['id'] + '>' +
           '<hr>' +
           '<i class="far fa-square pr-3"></i>' +
@@ -41,7 +41,7 @@ var uploadSingleEntry = function(entry) {
       }
     }),
     success: function (response, textStatus) {
-      console.log(response);
+      console.log('Uploaded: ' + response);
     },
     error: function (request, textStatus, errorMessage) {
       console.log(errorMessage);
@@ -54,7 +54,7 @@ var deleteSingleEntry = function(entry) {
     type: 'DELETE',
     url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks/' + entry + '?api_key=177',
     success: function (response, textStatus) {
-      console.log(response);
+      console.log('Deleted: ' + response);
     },
     error: function (request, textStatus, errorMessage) {
       console.log(errorMessage);
@@ -62,40 +62,12 @@ var deleteSingleEntry = function(entry) {
   })
 }
 
-// $.ajax({
-//   type: 'POST',
-//   url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks?api_key=177',
-//   contentType: 'application/json',
-//   dataType: 'json',
-//   data: JSON.stringify({
-//     task: {
-//       content: 'pay bills'
-//     }
-//   }),
-//   success: function (response, textStatus) {
-//     console.log(response);
-//   },
-//   error: function (request, textStatus, errorMessage) {
-//     console.log(errorMessage);
-//   }
-// });
+// ------------------  event handlers ---------------------
 
-// $.ajax({
-//   type: 'DELETE',
-//   url: 'https://altcademy-to-do-list-api.herokuapp.com/tasks/2533?api_key=177',
-//   success: function (response, textStatus) {
-//     console.log(response);
-//   },
-//   error: function (request, textStatus, errorMessage) {
-//     console.log(errorMessage);
-//   }
-// })
-
-// event handlers
+// add new task to list
 $(document).on('keypress', 'input', function() {
   if (event.which === 13) {
     var temp = $('input').val();
-    console.log(temp);
     $('.task-list').append(
       '<div class="task">' +
         '<hr>' +
@@ -108,13 +80,16 @@ $(document).on('keypress', 'input', function() {
   }
 });
 
-$(document).on('click', '.fa-square', function() {
-
+// delete task from list
+$(document).on('click', '.fa-square', function(elem) {
+  var divId = $(this).closest('.task').attr('id');
+  deleteSingleEntry(divId);
+  $(this).closest('.task').remove();
 })
 
 
 
-// populate list on DOM load
+// ---------------- fire upon DOM load ----------------
 $(document).ready(function() {
   populateAll();
 });
