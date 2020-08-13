@@ -2,6 +2,7 @@
 body {
   background-color: #343a40;
   margin: 25px;
+  background-image: url('./Big_Painting.jpg');
 }
 
 .container-fluid {
@@ -58,6 +59,7 @@ h5 {
 /* media-specific styles */
 @media (max-width: 960px) {
   body {
+    background-image: none;
     background-color: #202124;
     margin-top: 0;
   }
